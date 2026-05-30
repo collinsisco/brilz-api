@@ -57,17 +57,21 @@ app.use(helmet({
 }));
 
 /* ── CORS ───────────────────────────────────────────────────── */
-const ALLOWED = (process.env.ALLOWED_ORIGINS || '')
-  .split(',').map(s => s.trim()).filter(Boolean);
+const cors = require('cors');
 
 app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin || !IS_PROD || ALLOWED.includes(origin)) return cb(null, true);
-    cb(new Error(`CORS blocked: ${origin}`));
-  },
+  origin: [
+    'https://brilz.netlify.app',
+    'http://localhost:3000',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+  ],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
 }));
+
+app.options('*', cors()); // ← this line is critical
 
 /* ── Body parsing & compression ─────────────────────────────── */
 app.use(compression());
